@@ -1,0 +1,13 @@
+.App {
+  text-align: center;
+}
+
+.App button {
+  margin: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.App .btn {
+  width: auto;
+}
