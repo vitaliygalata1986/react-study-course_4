@@ -1,4 +1,37 @@
-import { useState, useEffect, useRef } from 'react';
+import { useReducer } from 'react';
+import { useEffect } from 'react';
+
+const countReducer = (state, { type }) => {
+  if (type === 'START') {
+    return {
+      ...state,
+      isCounting: true,
+    };
+  }
+
+  if (type === 'STOP') {
+    return {
+      ...state,
+      isCounting: false,
+    };
+  }
+
+  if (type === 'RESET') {
+    return {
+      count: 0,
+      isCounting: false,
+    };
+  }
+
+  if (type === 'TICK') {
+    return {
+      ...state,
+      count: state.count + 1,
+    };
+  }
+
+  return state;
+};
 
 function setDefaultValue() {
   const userCount = localStorage.getItem('timer');
@@ -6,40 +39,32 @@ function setDefaultValue() {
 }
 
 function Timer() {
-  const [count, setСount] = useState(setDefaultValue());
-  const [isCounting, setIsCount] = useState(false);
-  const timerIdRef = useRef(null);
-  console.log('render');
+  //const [count, setСount] = useState(setDefaultValue());
+  //const [isCounting, setIsCount] = useState(false);
 
-  const startTimer = () => {
-    setIsCount(true);
-  };
-
-  const stopTimer = () => {
-    setIsCount(false);
-  };
-
-  const resetTimer = () => {
-    setСount(0);
-    setIsCount(false);
-  };
+  const [{ count, isCounting }, dispatch] = useReducer(countReducer, {
+    count: setDefaultValue(),
+    isCounting: false,
+  });
 
   useEffect(() => {
-    console.log('update');
+    // console.log('update');
     localStorage.setItem('timer', count);
   }, [count]);
 
   useEffect(() => {
+    let timerId = null;
     if (isCounting) {
-      timerIdRef.current = setInterval(() => {
-        setСount((prevCount) => prevCount + 1);
+      timerId = setInterval(() => {
+        // setСount((prevCount) => prevCount + 1);
+        dispatch({ type: 'TICK' });
       }, 1000);
     }
     // размонтирование
     return () => {
       console.log('unmount');
-      timerIdRef.current && clearInterval(timerIdRef.current);
-      timerIdRef.current = null;
+      timerId && clearInterval(timerId);
+      timerId = null;
     };
   }, [isCounting]);
 
@@ -47,13 +72,13 @@ function Timer() {
     <div>
       <h3>{count}</h3>
       {!isCounting ? (
-        <button onClick={startTimer}>Start</button>
+        <button onClick={() => dispatch({ type: 'START' })}>Start</button>
       ) : (
-        <button className="btn" onClick={stopTimer}>
+        <button className="btn" onClick={() => dispatch({ type: 'STOP' })}>
           Stop
         </button>
       )}
-      <button onClick={resetTimer}>Reset</button>
+      <button onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
     </div>
   );
 }
