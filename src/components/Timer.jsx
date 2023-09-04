@@ -2,6 +2,7 @@ import { useReducer } from 'react';
 import { useEffect } from 'react';
 
 const countReducer = (state, { type }) => {
+  console.log(state);
   if (type === 'START') {
     return {
       ...state,
